@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\BookRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -66,6 +68,34 @@ class Book
      * @ORM\Column(type="datetime_immutable")
      */
     private $published_at;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Comment::class, mappedBy="book_id")
+     */
+    private $comments;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Readings::class, mappedBy="book_id")
+     */
+    private $readings;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Crush::class, mappedBy="book_id")
+     */
+    private $crushes;
+
+    /**
+     * @ORM\ManyToMany(targetEntity=Genre::class, inversedBy="books")
+     */
+    private $genre;
+
+    public function __construct()
+    {
+        $this->comments = new ArrayCollection();
+        $this->readings = new ArrayCollection();
+        $this->crushes = new ArrayCollection();
+        $this->genre = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -188,6 +218,120 @@ class Book
     public function setPublishedAt(\DateTimeImmutable $published_at): self
     {
         $this->published_at = $published_at;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Comment>
+     */
+    public function getComments(): Collection
+    {
+        return $this->comments;
+    }
+
+    public function addComment(Comment $comment): self
+    {
+        if (!$this->comments->contains($comment)) {
+            $this->comments[] = $comment;
+            $comment->setBookId($this);
+        }
+
+        return $this;
+    }
+
+    public function removeComment(Comment $comment): self
+    {
+        if ($this->comments->removeElement($comment)) {
+            // set the owning side to null (unless already changed)
+            if ($comment->getBookId() === $this) {
+                $comment->setBookId(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Readings>
+     */
+    public function getReadings(): Collection
+    {
+        return $this->readings;
+    }
+
+    public function addReading(Readings $reading): self
+    {
+        if (!$this->readings->contains($reading)) {
+            $this->readings[] = $reading;
+            $reading->setBookId($this);
+        }
+
+        return $this;
+    }
+
+    public function removeReading(Readings $reading): self
+    {
+        if ($this->readings->removeElement($reading)) {
+            // set the owning side to null (unless already changed)
+            if ($reading->getBookId() === $this) {
+                $reading->setBookId(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Crush>
+     */
+    public function getCrushes(): Collection
+    {
+        return $this->crushes;
+    }
+
+    public function addCrush(Crush $crush): self
+    {
+        if (!$this->crushes->contains($crush)) {
+            $this->crushes[] = $crush;
+            $crush->setBookId($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCrush(Crush $crush): self
+    {
+        if ($this->crushes->removeElement($crush)) {
+            // set the owning side to null (unless already changed)
+            if ($crush->getBookId() === $this) {
+                $crush->setBookId(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Genre>
+     */
+    public function getGenre(): Collection
+    {
+        return $this->genre;
+    }
+
+    public function addGenre(Genre $genre): self
+    {
+        if (!$this->genre->contains($genre)) {
+            $this->genre[] = $genre;
+        }
+
+        return $this;
+    }
+
+    public function removeGenre(Genre $genre): self
+    {
+        $this->genre->removeElement($genre);
 
         return $this;
     }
